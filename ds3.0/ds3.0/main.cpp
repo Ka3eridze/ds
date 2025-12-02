@@ -1,66 +1,69 @@
-#include <iostream>//a
-#include <limits>
-#include "Library.h"
-#include "Admin.h"
-#include "Student.h"
-#include "Book.h"
-#include "status_Queue.h"
+#include <iostream>  // 
+#include <limits> //numeric_limits
+#include "Library.h" // for library management 
+#include "Admin.h" //for admin role
+#include "Student.h" //for student role
+#include "Book.h" //for book structure
+#include "status_Queue.h" // for status Queue
 
 using namespace std;
-
+ 
 int main() {
-    LIBirianc lib;
-    StatusQueue statusQueue;
+    LIBirianc lib;  // reference to library
+    StatusQueue statusQueue; // reference to status queue
 
-    // Загружаем данные
-    lib.loadBooks("books.csv");
-    statusQueue.loadFromCSV("status.csv");
+ 
+    lib.loadBooks("books.csv"); // load books from CSV
+    statusQueue.loadFromCSV("status.csv"); // load status from CSV
 
-    int roleChoice;
-
+    int roleChoice; // to choose role
+    
+    //menu loop
     while (true) {
         cout << "\n========================================\n";
         cout << "        Library Management System       \n";
         cout << "========================================\n\n";
-
+    //role selection
         cout << "Select Role:\n";
         cout << " 1. Admin\n";
         cout << " 2. Student\n";
         cout << " 0. Exit\n";
         cout << "Choice: ";
-
-        if (!(cin >> roleChoice)) {  // проверка ввода
-            cin.clear();
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+         
+        // Validate input (must be a number)
+        if (!(cin >> roleChoice)) {  
+            cin.clear();// Clear the error state
+            cin.ignore(numeric_limits<streamsize>::max(), '\n'); //avoid infinite loop
             cout << "\nInvalid input! Enter a number.\n";
-            continue;
+            continue; // Return to menu
         }
-
-        cin.ignore(numeric_limits<streamsize>::max(), '\n'); // очистка буфера
+         // Remove any extra characters after number (like ENTER)
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
 
         if (roleChoice == 1) {
-            cout << "\n======== Admin Login ========\n";
+             // Create Admin object
             Admin admin(lib, statusQueue, "admin.txt");
             if (admin.login()) {
-                cout << "\n========= Admin Menu =========\n";
-                admin.showMenu();
+                
+                admin.showMenu(); // Open Admin menu
             }
             else {
                 cout << "\nInvalid credentials. Returning to main menu...\n";
             }
         }
         else if (roleChoice == 2) {
-            cout << "\n======= Student Login =======\n";
+            // Create Student object
             Student student(lib, statusQueue, "student.csv");
-            if (student.login()) {
-                cout << "\n======== Student Menu ========\n";
-                student.showMenu();
+            // Login process
+            if (student.login()) {   
+                student.showMenu(); // Open Student menu
             }
             else {
                 cout << "\nInvalid credentials. Returning to main menu...\n";
             }
         }
         else if (roleChoice == 0) {
+             // Exit program
             cout << "\nExiting program... Goodbye!\n";
             break;
         }
@@ -69,7 +72,7 @@ int main() {
         }
     }
 
-    // Сохраняем данные
+ // Save data before exiting
     lib.saveBooks("books.csv");
     statusQueue.saveToCSV("status.csv");
 
