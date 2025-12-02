@@ -24,4 +24,4 @@ public:
     void loadBooks(const string& filename) { books.loadFromCSV(filename); }
     void saveBooks(const string& filename) { books.saveToCSV(filename); }
 };
-#endif; //LIBRARY_H
+#endif //LIBRARY_H
