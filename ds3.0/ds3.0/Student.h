@@ -15,7 +15,9 @@ private:
     LIBirianc& libraryRef;  // Reference to the Library object
     StatusQueue& statusQueueRef;  // Reference to the StatusQueue object
 
-    // ================== ДОБАВЛЕНО: безопасный ввод ==================
+    // Template method for safe typed input.
+    // If user enters a wrong type (e.g. letter instead of number), it clears input
+    // but throws an exception to let the outer code handle it.
     template<typename T>
     T safeInput() {
         T value;
@@ -257,3 +259,4 @@ public:
         } while (true);
     }
 };
+
