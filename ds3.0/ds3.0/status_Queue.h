@@ -5,6 +5,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>          // в†ђ Р”РћР‘РђР’Р›Р•РќРћ: РґР»СЏ vector<string>
 using namespace std;
 
 // this class manages with all book statuses and their queue, btw it works with csv file
@@ -63,6 +64,7 @@ private:
         if (!bookStatus->front) return "";
 
         WaitNode* temp = bookStatus->front;
+
         string name = temp->studentName;
 
         bookStatus->front = bookStatus->front->next;
@@ -81,6 +83,16 @@ private:
             << " | Available: " << node->availableCopies
             << " | Borrowed: " << (node->totalCopies - node->availableCopies)
             << endl;
+
+        // в†ђ Р”РћР‘РђР’Р›Р•РќРћ: РџРѕРєР°Р·С‹РІР°РµРј, РєС‚Рѕ РІР·СЏР» РєРЅРёРіСѓ
+        if (!node->issuedTo.empty()) {
+            cout << "  Issued to: ";
+            for (size_t i = 0; i < node->issuedTo.size(); ++i) {
+                if (i > 0) cout << ", ";
+                cout << node->issuedTo[i];
+            }
+            cout << endl;
+        }
 
         if (!node->front) {
             cout << "  Waiting queue: (empty)\n";
@@ -118,7 +130,7 @@ public:
     }
 
     // download all statuses from status.csv
-    // формат строки: id,total,available,name1,name2,...
+    // С„РѕСЂРјР°С‚ СЃС‚СЂРѕРєРё: id,total,available,name1,name2,...
     void loadFromCSV(const string& filename = "status.csv") {
         ifstream file(filename);
         if (!file.is_open()) {
@@ -155,7 +167,7 @@ public:
         file.close();
     }
 
-    // сохранение всех статусов в status.csv
+    // СЃРѕС…СЂР°РЅРµРЅРёРµ РІСЃРµС… СЃС‚Р°С‚СѓСЃРѕРІ РІ status.csv
     void saveToCSV(const string& filename = "status.csv") {
         ofstream file(filename);
         if (!file.is_open()) {
@@ -181,7 +193,7 @@ public:
         file.close();
     }
 
-    // установить/обновить общее количество копий книги
+    // СѓСЃС‚Р°РЅРѕРІРёС‚СЊ/РѕР±РЅРѕРІРёС‚СЊ РѕР±С‰РµРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РєРѕРїРёР№ РєРЅРёРіРё
     void setTotalCopies(int bookId, int totalCopies) {
         if (totalCopies < 0) {
             cout << "Total copies cannot be negative.\n";
@@ -202,9 +214,9 @@ public:
             << " set to " << node->totalCopies << ".\n";
     }
 
-    // выдача книги студенту
-    // если есть доступные копии – выдаём
-    // если нет – добавляем в очередь
+    // РІС‹РґР°С‡Р° РєРЅРёРіРё СЃС‚СѓРґРµРЅС‚Сѓ
+    // РµСЃР»Рё РµСЃС‚СЊ РґРѕСЃС‚СѓРїРЅС‹Рµ РєРѕРїРёРё вЂ“ РІС‹РґР°С‘Рј
+    // РµСЃР»Рё РЅРµС‚ вЂ“ РґРѕР±Р°РІР»СЏРµРј РІ РѕС‡РµСЂРµРґСЊ
     void issueBook(int bookId, const string& studentName) {
         if (studentName.empty()) {
             cout << "Student name cannot be empty.\n";
@@ -220,6 +232,7 @@ public:
 
         if (node->availableCopies > 0) {
             node->availableCopies--;
+            node->issuedTo.push_back(studentName);   // в†ђ Р”РћР‘РђР’Р›Р•РќРћ: Р·Р°РїРѕРјРёРЅР°РµРј, РєС‚Рѕ РІР·СЏР»!
             cout << "Book " << bookId << " issued to " << studentName << ".\n";
             cout << "Available copies left: " << node->availableCopies << ".\n";
         }
@@ -231,7 +244,7 @@ public:
             }
             enqueue(node, studentName);
 
-            // считаем позицию в очереди
+            // СЃС‡РёС‚Р°РµРј РїРѕР·РёС†РёСЋ РІ РѕС‡РµСЂРµРґРё
             int pos = 1;
             WaitNode* cur = node->front;
             while (cur && cur->studentName != studentName) {
@@ -245,9 +258,9 @@ public:
         }
     }
 
-    // возврат книги
-    // если очередь пустая – увеличиваем available
-    // если очередь непустая – сразу выдаём следующему
+    // РІРѕР·РІСЂР°С‚ РєРЅРёРіРё
+    // РµСЃР»Рё РѕС‡РµСЂРµРґСЊ РїСѓСЃС‚Р°СЏ вЂ“ СѓРІРµР»РёС‡РёРІР°РµРј available
+    // РµСЃР»Рё РѕС‡РµСЂРµРґСЊ РЅРµРїСѓСЃС‚Р°СЏ вЂ“ СЃСЂР°Р·Сѓ РІС‹РґР°С‘Рј СЃР»РµРґСѓСЋС‰РµРјСѓ
     void returnBook(int bookId) {
         StatusNode* node = findStatus(bookId);
         if (!node) {
@@ -257,7 +270,7 @@ public:
 
 
         if (!node->front) {
-            // никого не ждёт – просто увеличиваем available (но не больше total)
+            // РЅРёРєРѕРіРѕ РЅРµ Р¶РґС‘С‚ вЂ“ РїСЂРѕСЃС‚Рѕ СѓРІРµР»РёС‡РёРІР°РµРј available (РЅРѕ РЅРµ Р±РѕР»СЊС€Рµ total)
             if (node->availableCopies < node->totalCopies) {
                 node->availableCopies++;
                 cout << "Book " << bookId << " returned. "
@@ -269,8 +282,9 @@ public:
             }
         }
         else {
-            // кто-то ждёт – выдаём следующему
+            // РєС‚Рѕ-С‚Рѕ Р¶РґС‘С‚ вЂ“ РІС‹РґР°С‘Рј СЃР»РµРґСѓСЋС‰РµРјСѓ
             string nextStudent = dequeue(node);
+            node->issuedTo.push_back(nextStudent);  // в†ђ Р”РћР‘РђР’Р›Р•РќРћ: Р·Р°РїРѕРјРёРЅР°РµРј РЅРѕРІРѕРіРѕ РґРµСЂР¶Р°С‚РµР»СЏ
             cout << "Book " << bookId
                 << " returned and immediately issued to waiting student: "
                 << nextStudent << ".\n";
@@ -278,7 +292,7 @@ public:
         }
     }
 
-    // показать статус конкретной книги
+    // РїРѕРєР°Р·Р°С‚СЊ СЃС‚Р°С‚СѓСЃ РєРѕРЅРєСЂРµС‚РЅРѕР№ РєРЅРёРіРё
     void showBookStatus(int bookId) {
         StatusNode* node = findStatus(bookId);
         if (!node) {
@@ -288,7 +302,7 @@ public:
         printStatus(node);
     }
 
-    // показать статусы всех книг
+    // РїРѕРєР°Р·Р°С‚СЊ СЃС‚Р°С‚СѓСЃС‹ РІСЃРµС… РєРЅРёРі
     void showAllStatus() {
         if (!head) {
             cout << "No status information available.\n";
