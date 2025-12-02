@@ -1,4 +1,3 @@
-#pragma once
 #ifndef ADMIN_H
 #define ADMIN_H
 
@@ -8,6 +7,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <limits>
 #include "Library.h"
 #include "Status_Queue.h"
 using namespace std;
@@ -17,6 +17,19 @@ private:
     LIBirianc& libraryRef;
     StatusQueue& statusQueueRef;
     string adminFile;
+
+    template<typename T>
+    T safeInput(const string& prompt = "") {
+        T value;
+        if (!prompt.empty()) cout << prompt;
+        while (!(cin >> value)) {
+            cout << "Invalid input! Enter a number: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        return value;
+    }
 
     bool loadCredentials() {
         ifstream fin(adminFile);
@@ -65,7 +78,7 @@ public:
     }
 
     void showMenu() override {
-        int ch;
+        int ch = -1;
         do {
             cout << "\n";
             cout << string(80, '=') << "\n";
@@ -77,28 +90,95 @@ public:
             cout << "0. Exit\n";
             cout << string(80, '-') << "\n";
             cout << "Choose: ";
-            cin >> ch;
+
+            ch = safeInput<int>();
 
             switch (ch) {
             case 1: {
+                while (true) {
                 cout << "\n--- ADD NEW BOOK ---\n";
+
+                    int nextId = 1;
+                    while (libraryRef.findBookById(nextId) != nullptr) nextId++;
+
+                    cout << "Suggested ID: " << nextId << " (next available)\n";
+                    cout << "Enter book ID (press Enter to use " << nextId << ", or 0 to cancel): ";
+
+                    string input;
+                    getline(cin, input);
+
+                    // Отмена по 0 или пустому вводу + 0
+                    if (input == "0") {
+                        cout << "Add book cancelled.\n";
+                        break;
+                    }
+
+                    int bookId = nextId;
+                    if (!input.empty()) {
+                        stringstream ss(input);
+                        if (!(ss >> bookId) || bookId <= 0) {
+                            cout << "Invalid ID! Using suggested ID: " << nextId << "\n";
+                            bookId = nextId;
+                        }
+                    }
+
+
+                    // Проверка дубликата
+                    if (libraryRef.findBookById(bookId) != nullptr) {
+                        cout << "ERROR: Book with ID " << bookId << " already exists!\n";
+                        cout << "1. Try another ID    0. Cancel adding\nChoose: ";
+                        if (safeInput<int>() == 0) {
+                            cout << "Add book cancelled.\n";
+                            break;
+                        }
+                        continue; // попробовать снова
+                    }
+
                 Book b;
-                cout << "Enter book ID: "; cin >> b.id;
-                cin.ignore();
-                cout << "Title: "; getline(cin, b.name);
-                cout << "Author: "; getline(cin, b.author);
-                cout << "Total copies: "; cin >> b.totalquant;
+                    b.id = bookId;
+
+                    cout << "Title: ";
+                    if (!getline(cin, b.name) || b.name.empty()) {
+                        cout << "Title cannot be empty! Cancelling...\n";
+                        break;
+                    }
+                    cout << "Author: ";
+                    if (!getline(cin, b.author) || b.author.empty()) {
+                        cout << "Author cannot be empty! Cancelling...\n";
+                        break;
+                    }
+
+                    cout << "Total copies: ";
+                    b.totalquant = safeInput<int>();
+                    if (b.totalquant <= 0) {
+                        cout << "Invalid quantity! Cancelling...\n";
+                        break;
+                    }
+
                 libraryRef.addBook(b);
                 statusQueueRef.setTotalCopies(b.id, b.totalquant);
-                cout << "Book added successfully!\n";
+                    cout << "Book added successfully with ID " << b.id << "!\n";
+                break;
+            }
                 break;
             }
             case 2: {
-                int id;
-                cout << "Enter book ID to delete: ";
-                cin >> id;
+                while (true) {
+                    cout << "\n--- DELETE BOOK ---\n";
+                    int id = safeInput<int>("Enter book ID to delete (0 to cancel): ");
+                    if (id == 0) break;
+
+                    if (libraryRef.findBookById(id) == nullptr) {
+                        cout << "Book with ID " << id << " not found!\n";
+                        cout << "1. Try again    0. Cancel\nChoose: ";
+                        if (safeInput<int>() == 0) break;
+                        continue;
+                    }
+
                 libraryRef.removeBook(id);
-                cout << "Book ID " << id << " removed from catalog.\n";
+                    cout << "Book ID " << id << " removed successfully!\n";
+                break;
+            }
                 break;
             }
             case 3: {
@@ -113,51 +193,53 @@ public:
                     << "QUEUE\n";
                 cout << string(130, '-') << "\n";
 
-                cout << "BOOK CATALOG:\n";
                 libraryRef.displayBooks();
-
-
                 cout << "\n" << string(90, '-') << "\n";
                 cout << "DETAILED STATUS:\n";
                 statusQueueRef.showAllStatus();
-
                 cout << string(130, '=') << "\n";
                 break;
             }
             case 4: {
-                int id;
-                cout << "Enter book ID: ";
-                cin >> id;
+                while (true) {
+                    int id = safeInput<int>("\nEnter book ID to search (0 to cancel): ");
+                    if (id == 0) break;
+
+
                 Book* b = libraryRef.findBookById(id);
                 if (b) {
                     cout << "\nFOUND: " << b->name << " by " << b->author << "\n";
+                        cout << "Total copies: " << b->totalquant << "\n";
                     statusQueueRef.showBookStatus(id);
                 }
                 else {
-                    cout << "Book not found.\n";
+                        cout << "Book not found!\n";
+                        cout << "1. Try again    0. Cancel\nChoose: ";
+                        if (safeInput<int>() == 0) break;
+                }
                 }
                 break;
             }
             case 5: {
+                while (true) {
                 cout << "\n=== STUDENT MANAGEMENT ===\n";
-                cout << "1. View all students  2. Register new student\nChoose: ";
-                int sub;
-                cin >> sub;
+                    cout << "1. View all students  2. Register new student  0. Back\nChoose: ";
+                    int sub = safeInput<int>();
+                    if (sub == 0) break;
+
                 if (sub == 1) {
                     cout << "\n--- ALL REGISTERED STUDENTS ---\n";
                     ifstream f("student.csv");
                     if (!f.is_open() || f.peek() == EOF) {
-                        cout << "No students registered yet.\n";
+                            cout << "No students registered.\n";
                     }
                     else {
-                        string line;
-                        int cnt = 1;
+                            string line; int cnt = 1;
                         while (getline(f, line)) {
                             if (line.empty()) continue;
                             stringstream ss(line);
                             string sid, user, pass;
-                            getline(ss, sid, ',');
-                            getline(ss, user, ',');
+                                getline(ss, sid, ','); getline(ss, user, ',');
                             cout << cnt++ << ". ID: " << sid << " | Username: " << user << endl;
                         }
                     }
@@ -172,23 +254,27 @@ public:
                     if (f.is_open()) {
                         f << sid << "," << user << "," << pass << "\n";
                         f.close();
-                        cout << "Student " << user << " registered successfully!\n";
+                            cout << "Student registered!\n";
+                        }
                     }
                 }
                 break;
             }
             case 6: {
-                int id;
-                cout << "Enter book ID: ";
-                cin >> id;
+                while (true) {
+                    int id = safeInput<int>("\nEnter book ID for details (0 to cancel): ");
+                    if (id == 0) break;
                 Book* b = libraryRef.findBookById(id);
                 if (!b) {
-                    cout << "Book not found.\n";
-                    break;
+                        cout << "Book not found!\n";
+                        cout << "1. Try again    0. Cancel\nChoose: ";
+                        if (safeInput<int>() == 0) break;
+                        continue;
                 }
                 cout << "\n=== " << b->name << " by " << b->author << " ===\n";
                 cout << "Total copies: " << b->totalquant << "\n";
                 statusQueueRef.showBookStatus(id);
+                }
                 break;
             }
             case 0: {
@@ -200,7 +286,7 @@ public:
                 break;
             }
             default:
-                cout << "Invalid choice. Please try again.\n";
+                cout << "Invalid choice!\n";
             }
         } while (ch != 0);
     }
