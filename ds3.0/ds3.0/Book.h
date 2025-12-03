@@ -1,3 +1,5 @@
+//U2410237
+//Soy Yekaterina
 #pragma once
 #include <string>
 using namespace std;
@@ -8,3 +10,4 @@ struct Book {
     string author;
     int totalquant;
 };
+
