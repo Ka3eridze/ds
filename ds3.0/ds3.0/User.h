@@ -1,3 +1,6 @@
+//U2410003 
+// ABDIJABBOROVA LAZIZA
+
 //U2420004
 //Abdikadirova Malikaxon
 #ifndef USER_H
@@ -29,3 +32,4 @@ public:
 
 
 #endif // USER_H
+
