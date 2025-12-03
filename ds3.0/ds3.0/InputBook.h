@@ -1,3 +1,5 @@
+//U2410237
+//Soy Yekaterina
 #include "Book.h"
 #include <iostream>
 #include <limits>
@@ -16,4 +18,5 @@ Book inputBook() {
     cin >> b.totalquant;
     cin.ignore(numeric_limits<streamsize>::max(), '\n');
     return b;
+
 };
