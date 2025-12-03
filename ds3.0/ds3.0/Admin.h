@@ -1,3 +1,5 @@
+//U2420004
+//Abdikadirova Malikaxon
 #ifndef ADMIN_H
 #define ADMIN_H
 // 1. Header Guard — защита от двойного включения файла
@@ -388,5 +390,6 @@ public:
 };
 
 #endif
+
 
 
