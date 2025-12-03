@@ -1,3 +1,5 @@
+//U2420004
+//Abdikadirova Malikaxon
 #pragma once
 #include <string>
 using namespace std;
@@ -20,4 +22,5 @@ public:
      // Getter for password
     string getUsername() { return username; }
     string getPassword() { return password; }
+
 };
