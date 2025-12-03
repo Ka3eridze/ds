@@ -1,3 +1,5 @@
+//U2410207
+//RIXSITILLAYEVA LOBAR
 #ifndef STATUSQUEUE_H
 #define STATUSQUEUE_H
 
@@ -311,5 +313,6 @@ public:
         }
     }
 };
+
 
 #endif
