@@ -1,3 +1,5 @@
+//U2420004
+//Abdikadirova Malikaxon
 #ifndef USER_H
 #define USER_H
 
@@ -24,5 +26,6 @@ public:
     virtual bool login() = 0;
     virtual void showMenu() = 0;
 };
+
 
 #endif // USER_H
