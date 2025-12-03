@@ -1,3 +1,6 @@
+//U2410207
+//RIXSITILLAYEVA LOBAR
+
 //U2410003 
 // ABDIJABBOROVA LAZIZA
 
@@ -83,4 +86,5 @@ int main() {
 
     return 0;
 }
+
 
