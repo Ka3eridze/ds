@@ -3,21 +3,12 @@
 // 1. Header Guard — защита от двойного включения файла
 
 #include "Role.h"
-<<<<<<< Updated upstream
-#include <string>
-#include <fstream>
-#include <iostream>
-#include <iomanip>
-#include <sstream>
-#include <limits>
-=======
 #include <string>      // строки: username, password, названия книг
 #include <fstream>     // чтение/запись файлов (admin.txt, student.csv)
 #include <iostream>    // cout, cin
 #include <iomanip>     // setw(), left — красивый табличный вывод
 #include <sstream>     // stringstream — парсинг строк и "перехват" вывода
 #include <limits>      // numeric_limits — безопасная очистка cin
->>>>>>> Stashed changes
 #include "Library.h"
 #include "Status_Queue.h"
 using namespace std;
@@ -28,10 +19,7 @@ private:
     StatusQueue& statusQueueRef;     // 3. Ссылка на общую систему выдачи (синхронизация с Student)
     string adminFile;                // 3. Путь к файлу с учёткой админа
 
-<<<<<<< Updated upstream
-=======
     // 4. Безопасный ввод числа — программа НЕ падает при вводе букв
->>>>>>> Stashed changes
     template<typename T>
     T safeInput(const string& prompt = "") {
         T value;
@@ -39,20 +27,13 @@ private:
         while (!(cin >> value)) {
             cout << "Invalid input! Enter a number: ";
             cin.clear();
-<<<<<<< Updated upstream
-            cin.ignore(numeric_limits<streamsize>::max(), '\n');
-=======
             cin.ignore(numeric_limits<streamsize>::max(), '\n'); // 4. Очистка буфера
->>>>>>> Stashed changes
         }
         cin.ignore(numeric_limits<streamsize>::max(), '\n');
         return value;
     }
 
-<<<<<<< Updated upstream
-=======
     // 5. Загрузка логина/пароля админа из файла
->>>>>>> Stashed changes
     bool loadCredentials() {
         ifstream fin(adminFile);                    // 5. fin — просто имя (file input)
         if (!fin.is_open()) return false;
@@ -115,158 +96,6 @@ public:
             cout << string(80, '-') << "\n";
             cout << "Choose: ";
 
-<<<<<<< Updated upstream
-            ch = safeInput<int>();
-
-            switch (ch) {
-            case 1: {
-                while (true) {
-                cout << "\n--- ADD NEW BOOK ---\n";
-
-                    int nextId = 1;
-                    while (libraryRef.findBookById(nextId) != nullptr) nextId++;
-
-                    cout << "Suggested ID: " << nextId << " (next available)\n";
-                    cout << "Enter book ID (press Enter to use " << nextId << ", or 0 to cancel): ";
-
-                    string input;
-                    getline(cin, input);
-
-                    // Отмена по 0 или пустому вводу + 0
-                    if (input == "0") {
-                        cout << "Add book cancelled.\n";
-                        break;
-                    }
-
-                    int bookId = nextId;
-                    if (!input.empty()) {
-                        stringstream ss(input);
-                        if (!(ss >> bookId) || bookId <= 0) {
-                            cout << "Invalid ID! Using suggested ID: " << nextId << "\n";
-                            bookId = nextId;
-                        }
-                    }
-
-
-                    // Проверка дубликата
-                    if (libraryRef.findBookById(bookId) != nullptr) {
-                        cout << "ERROR: Book with ID " << bookId << " already exists!\n";
-                        cout << "1. Try another ID    0. Cancel adding\nChoose: ";
-                        if (safeInput<int>() == 0) {
-                            cout << "Add book cancelled.\n";
-                            break;
-                        }
-                        continue; // попробовать снова
-                    }
-
-                Book b;
-                    b.id = bookId;
-
-                    cout << "Title: ";
-                    if (!getline(cin, b.name) || b.name.empty()) {
-                        cout << "Title cannot be empty! Cancelling...\n";
-                        break;
-                    }
-                    cout << "Author: ";
-                    if (!getline(cin, b.author) || b.author.empty()) {
-                        cout << "Author cannot be empty! Cancelling...\n";
-                        break;
-                    }
-
-                    cout << "Total copies: ";
-                    b.totalquant = safeInput<int>();
-                    if (b.totalquant <= 0) {
-                        cout << "Invalid quantity! Cancelling...\n";
-                        break;
-                    }
-
-                libraryRef.addBook(b);
-                statusQueueRef.setTotalCopies(b.id, b.totalquant);
-                    cout << "Book added successfully with ID " << b.id << "!\n";
-                break;
-            }
-                break;
-            }
-            case 2: {
-                while (true) {
-                    cout << "\n--- DELETE BOOK ---\n";
-                    int id = safeInput<int>("Enter book ID to delete (0 to cancel): ");
-                    if (id == 0) break;
-
-                    if (libraryRef.findBookById(id) == nullptr) {
-                        cout << "Book with ID " << id << " not found!\n";
-                        cout << "1. Try again    0. Cancel\nChoose: ";
-                        if (safeInput<int>() == 0) break;
-                        continue;
-                    }
-
-                libraryRef.removeBook(id);
-                    cout << "Book ID " << id << " removed successfully!\n";
-                break;
-            }
-                break;
-            }
-            case 3: {
-                cout << "\n" << string(130, '=') << "\n";
-                cout << left
-                    << setw(6) << "ID"
-                    << setw(40) << "TITLE"
-                    << setw(25) << "AUTHOR"
-                    << setw(8) << "TOTAL"
-                    << setw(8) << "AVAIL"
-                    << setw(25) << "ISSUED TO"
-                    << "QUEUE\n";
-                cout << string(130, '-') << "\n";
-
-                libraryRef.displayBooks();
-                cout << "\n" << string(90, '-') << "\n";
-                cout << "DETAILED STATUS:\n";
-                statusQueueRef.showAllStatus();
-                cout << string(130, '=') << "\n";
-                break;
-            }
-            case 4: {
-                while (true) {
-                    int id = safeInput<int>("\nEnter book ID to search (0 to cancel): ");
-                    if (id == 0) break;
-
-
-                Book* b = libraryRef.findBookById(id);
-                if (b) {
-                    cout << "\nFOUND: " << b->name << " by " << b->author << "\n";
-                        cout << "Total copies: " << b->totalquant << "\n";
-                    statusQueueRef.showBookStatus(id);
-                }
-                else {
-                        cout << "Book not found!\n";
-                        cout << "1. Try again    0. Cancel\nChoose: ";
-                        if (safeInput<int>() == 0) break;
-                }
-                }
-                break;
-            }
-            case 5: {
-                while (true) {
-                cout << "\n=== STUDENT MANAGEMENT ===\n";
-                    cout << "1. View all students  2. Register new student  0. Back\nChoose: ";
-                    int sub = safeInput<int>();
-                    if (sub == 0) break;
-
-                if (sub == 1) {
-                    cout << "\n--- ALL REGISTERED STUDENTS ---\n";
-                    ifstream f("student.csv");
-                    if (!f.is_open() || f.peek() == EOF) {
-                            cout << "No students registered.\n";
-                    }
-                    else {
-                            string line; int cnt = 1;
-                        while (getline(f, line)) {
-                            if (line.empty()) continue;
-                            stringstream ss(line);
-                            string sid, user, pass;
-                                getline(ss, sid, ','); getline(ss, user, ',');
-                            cout << cnt++ << ". ID: " << sid << " | Username: " << user << endl;
-=======
             ch = safeInput<int>();  // 8. Безопасный ввод — не падает при вводе букв
 
             switch (ch) {
@@ -286,7 +115,6 @@ public:
                         if (input == "0") {
                             cout << "Add book cancelled.\n";
                             break;
->>>>>>> Stashed changes
                         }
 
                         int bookId = nextId;
@@ -334,52 +162,6 @@ public:
                         cout << "Book added successfully with ID " << b.id << "!\n";
                         break;
                     }
-<<<<<<< Updated upstream
-                    f.close();
-                }
-                else if (sub == 2) {
-                    string sid, user, pass;
-                    cout << "Student ID: "; cin >> sid;
-                    cout << "Username: "; cin >> user;
-                    cout << "Password: "; cin >> pass;
-                    ofstream f("student.csv", ios::app);
-                    if (f.is_open()) {
-                        f << sid << "," << user << "," << pass << "\n";
-                        f.close();
-                            cout << "Student registered!\n";
-                        }
-                    }
-                }
-                break;
-            }
-            case 6: {
-                while (true) {
-                    int id = safeInput<int>("\nEnter book ID for details (0 to cancel): ");
-                    if (id == 0) break;
-                Book* b = libraryRef.findBookById(id);
-                if (!b) {
-                        cout << "Book not found!\n";
-                        cout << "1. Try again    0. Cancel\nChoose: ";
-                        if (safeInput<int>() == 0) break;
-                        continue;
-                }
-                cout << "\n=== " << b->name << " by " << b->author << " ===\n";
-                cout << "Total copies: " << b->totalquant << "\n";
-                statusQueueRef.showBookStatus(id);
-                }
-                break;
-            }
-            case 0: {
-                cout << "\n";
-                cout << string(60, '=') << "\n";
-                cout << "   Thank you, Admin " << username << "!\n";
-                cout << "   Logging out safely...\n";
-                cout << string(60, '=') << "\n\n";
-                break;
-            }
-            default:
-                cout << "Invalid choice!\n";
-=======
                     break;
                 }
                 case 2: {
@@ -615,7 +397,6 @@ public:
                 }
                 default:
                     cout << "Invalid choice!\n";
->>>>>>> Stashed changes
             }
         } while (ch != 0);
     }
