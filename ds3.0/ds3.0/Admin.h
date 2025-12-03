@@ -327,64 +327,49 @@ public:
                     }
                     break;
                 }
-                                                   case 6: {
-                    cout << "\n" << string(120, '=') << "\n";
-                    cout << "                 CURRENTLY ISSUED BOOKS WITH STUDENTS                 \n";
-                    cout << string(120, '-') << "\n";
-                    cout << left
-                         << setw(6)  << "ID"
-                         << setw(40) << "TITLE"
-                         << setw(25) << "AUTHOR"
-                         << setw(12) << "ISSUED"
-                         << "STUDENT(S)\n";
-                    cout << string(120, '-') << "\n";
+                                                                  case 6: {
+                    cout << "\n" << string(100, '=') << "\n";
+                    cout << "               CURRENTLY ISSUED BOOKS               \n";
+                    cout << string(100, '-') << "\n";
 
                     bool hasIssued = false;
-
                     for (int id = 1; id <= 1000; ++id) {
                         Book* b = libraryRef.findBookById(id);
                         if (!b) continue;
 
-                        // Получаем статус напрямую — теперь у нас есть issuedTo!
-                        stringstream buffer;
-                        streambuf* old = cout.rdbuf(buffer.rdbuf());
+                        stringstream temp;
+                        streambuf* old = cout.rdbuf(temp.rdbuf());
                         statusQueueRef.showBookStatus(id);
                         cout.rdbuf(old);
-                        string output = buffer.str();
 
-                        size_t availPos = output.find("Available: ");
-                        size_t totalPos = output.find("Total: ");
-                        if (availPos == string::npos || totalPos == string::npos) continue;
+                        string s = temp.str();
+                        size_t p = s.find("Available: ");
+                        if (p == string::npos) continue;
 
-                        int available = stoi(output.substr(availPos + 11));
-                        int total = stoi(output.substr(totalPos + 7));
-                        int issued = total - available;
+                        int available = stoi(s.substr(p + 11));
+                        int issued = b->totalquant - available;
                         if (issued <= 0) continue;
 
                         hasIssued = true;
+                        cout << "ID: " << id 
+                             << " | " << b->name 
+                             << " | Issued: " << issued << "/" << b->totalquant
+                             << " | Student: ";
 
-                        // Теперь берём имена прямо из issuedTo (самый надёжный способ)
-                        string students = "Unknown";
-                        size_t issuedPos = output.find("Issued to: ");
-                        if (issuedPos != string::npos) {
-                            students = output.substr(issuedPos + 11);
-                            size_t newline = students.find('\n');
-                            if (newline != string::npos) students = students.substr(0, newline);
+                        size_t ip = s.find("Issued to: ");
+                        if (ip != string::npos) {
+                            string students = s.substr(ip + 11);
+                            size_t nl = students.find('\n');
+                            if (nl != string::npos) students = students.substr(0, nl);
+                            cout << students;
+                        } else {
+                            cout << "Unknown";
                         }
-
-                        cout << left
-                             << setw(6)  << b->id
-                             << setw(40) << (b->name.substr(0,39) + (b->name.size()>39?"...":""))
-                             << setw(25) << (b->author.substr(0,24) + (b->author.size()>24?"...":""))
-                             << setw(12) << issued << "/" << total
-                             << students << "\n";
+                        cout << "\n";
                     }
 
-                    if (!hasIssued) {
-                        cout << "                        No books are currently issued.\n";
-                    }
-
-                    cout << string(120, '=') << "\n";
+                    if (!hasIssued) cout << "                     No books currently issued.\n";
+                    cout << string(100, '=') << "\n";
                     break;
                 }
                 case 0: {
@@ -403,3 +388,4 @@ public:
 };
 
 #endif
+
