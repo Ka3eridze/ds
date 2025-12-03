@@ -1,3 +1,6 @@
+//U2410003 
+// ABDIJABBOROVA LAZIZA
+
 //U2420004
 //Abdikadirova Malikaxon
 #pragma once
@@ -24,3 +27,4 @@ public:
     string getPassword() { return password; }
 
 };
+
