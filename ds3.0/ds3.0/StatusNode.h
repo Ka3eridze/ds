@@ -2,7 +2,7 @@
 #define STATUSNODE_H
 
 #include <string>
-#include <vector>          // ← ЭТО ДОБАВЬ!
+#include <vector>
 using namespace std;
 
 // its loop for waitings (name students)
@@ -23,7 +23,7 @@ struct StatusNode {
     WaitNode* front;
     WaitNode* rear;
 
-    vector<string> issuedTo;   // ← ВОТ ЭТУ СТРОКУ ДОБАВЬ! (кто сейчас держит книгу)
+    vector<string> issuedTo;
 
     StatusNode* next;
     StatusNode(int id, int total, int available)
@@ -33,7 +33,7 @@ struct StatusNode {
           front(nullptr),
           rear(nullptr),
           next(nullptr),
-          issuedTo() {           // ← инициализация вектора
+        issuedTo() {
     }
 };
 
