@@ -1,3 +1,5 @@
+//U2410207
+//RIXSITILLAYEVA LOBAR
 #ifndef STATUSNODE_H
 #define STATUSNODE_H
 
@@ -36,5 +38,6 @@ struct StatusNode {
         issuedTo() {
     }
 };
+
 
 #endif
