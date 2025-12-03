@@ -1,3 +1,5 @@
+//U2410237
+//Soy Yekaterina
 #pragma once
 #include "Book.h"
 
@@ -9,4 +11,5 @@ struct BookNode {
     BookNode<T>* right;
 
     BookNode(const T& b) : data(b), height(1), left(nullptr), right(nullptr) {}
+
 };
