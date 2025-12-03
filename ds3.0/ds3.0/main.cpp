@@ -1,3 +1,8 @@
+//U2410003 
+// ABDIJABBOROVA LAZIZA
+
+//U2420004
+//Abdikadirova Malikaxon
 #include <iostream>  // 
 #include <limits> //numeric_limits
 #include "Library.h" // for library management 
@@ -78,3 +83,4 @@ int main() {
 
     return 0;
 }
+
