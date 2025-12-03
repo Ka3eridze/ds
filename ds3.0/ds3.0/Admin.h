@@ -1,7 +1,7 @@
 #ifndef ADMIN_H
 #define ADMIN_H
 // 1. Header Guard — защита от двойного включения файла
-
+//u2410004, all work was done by Malika only.
 #include "Role.h"
 #include <string>      // строки: username, password, названия книг
 #include <fstream>     // чтение/запись файлов (admin.txt, student.csv)
@@ -388,4 +388,5 @@ public:
 };
 
 #endif
+
 
